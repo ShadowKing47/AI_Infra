@@ -1,0 +1,16 @@
+services:
+  localstack:
+    image: localstack/localstack:3.4
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=ec2,s3,dynamodb,rds,elasticache,elbv2,autoscaling,iam,secretsmanager,cloudwatch,lambda,events,wafv2,logs,sns,firehose
+      - DEFAULT_REGION=us-east-1
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

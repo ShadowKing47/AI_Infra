@@ -11,3 +11,6 @@ terraform.tfvars
 # OS / editor noise
 .DS_Store
 *.swp
+
+trash/
+IMPLEMENTATION.md
