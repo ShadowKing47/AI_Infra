@@ -1,16 +1,25 @@
-# Terraform state — never commit
-*.tfstate
-*.tfstate.backup
-.terraform/
-.terraform.lock.hcl
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+.pytest_cache/
 
-# Secrets — never commit
-terraform.tfvars
-*.auto.tfvars
+# Secrets
+.env
 
-# OS / editor noise
+# OS / editor
 .DS_Store
 *.swp
 
+# MLflow
+mlruns/
+
+# LocalStack persisted state
+.localstack/
+
 trash/
-IMPLEMENTATION.md
+tests
