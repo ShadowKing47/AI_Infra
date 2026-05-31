@@ -12,5 +12,7 @@ terraform.tfvars
 .DS_Store
 *.swp
 
+tests/
+venv/
 trash/
 IMPLEMENTATION.md
