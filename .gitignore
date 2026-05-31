@@ -1,0 +1,13 @@
+# Terraform state — never commit
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Secrets — never commit
+terraform.tfvars
+*.auto.tfvars
+
+# OS / editor noise
+.DS_Store
+*.swp

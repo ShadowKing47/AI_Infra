@@ -1,0 +1,11 @@
+# Copy this to terraform.tfvars and fill in values.
+# terraform.tfvars is gitignored — never commit real values.
+
+aws_region   = "us-east-1"
+project_name = "ai-infra"
+environment  = "dev"
+
+vpc_cidr           = "10.0.0.0/16"
+azs                = ["us-east-1a", "us-east-1b"]
+enable_nat_gateway = true
+single_nat_gateway = true   # single NAT in dev to save cost; set false in prod
