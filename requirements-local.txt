@@ -1,0 +1,34 @@
+# LocalStack & Local Development Dependencies
+# For running against LocalStack instead of AWS
+# Install in addition to base requirements:
+#   pip install -r requirements.txt
+#   pip install -r requirements-local.txt
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LocalStack Simulation
+# ─────────────────────────────────────────────────────────────────────────────
+
+localstack==2.3.1                  # LocalStack Docker/CLI wrapper
+localstack-client==2.37.0          # Python client for LocalStack
+docker==6.1.0                      # Docker SDK for Python (LocalStack dependency)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Database Drivers (for Phase 3)
+# ─────────────────────────────────────────────────────────────────────────────
+
+psycopg2-binary==2.9.9             # PostgreSQL adapter for Python
+redis==5.0.1                       # Redis Python client
+sqlalchemy==2.0.23                 # SQL toolkit and ORM
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Testing against LocalStack
+# ─────────────────────────────────────────────────────────────────────────────
+
+moto==4.2.9                        # AWS service mocking (fallback if LocalStack unavailable)
+responses==0.24.1                  # Mock responses library for boto3
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Monitoring & Debugging
+# ─────────────────────────────────────────────────────────────────────────────
+
+localstack-ext==0.1.0              # LocalStack extensions (optional, for Pro features)
