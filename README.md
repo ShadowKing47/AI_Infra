@@ -25,7 +25,7 @@ Build a **fully functional MLOps platform** where:
 - Auto Scaling Groups with CPU target-tracking
 - EC2 launch templates with IMDSv2, CloudWatch monitoring, IAM roles
 - FastAPI application with `/health` endpoint
-- 32 unit tests covering all components
+
 
 ## 🏗️ Architecture Overview
 
@@ -214,23 +214,6 @@ curl http://localhost:8080/health
 | 6 | Scaling | Predictive auto-scaling | Time series, infrastructure ML |
 | 7 | MLOps Loop | Training, registry, A/B, drift | End-to-end ML pipeline |
 
-## 🧪 Testing
-
-Run all tests:
-```bash
-pytest tests/ -v
-```
-
-Run specific test:
-```bash
-pytest tests/test_loadbalancer.py::test_create_alb_new -v
-```
-
-With coverage:
-```bash
-pytest tests/ --cov=infra --cov=app --cov=scripts
-```
-
 ## 📝 Configuration
 
 Edit `.env` to customize:
@@ -240,54 +223,6 @@ AWS_DEFAULT_REGION=us-east-1
 PROJECT_NAME=ai-infra
 ENVIRONMENT=dev
 ```
-
-## 🔗 Integration Points
-
-- **Phase 1 → 2**: Networking resources (VPC, subnets, SGs)
-- **Phase 2 → 3**: Target group ARNs for health checks
-- **Phase 2 → 4**: ALB reused for ML tier routing
-- **Phase 4 → 7**: Model artefacts stored in S3 (Phase 2)
-
-## 📚 Documentation
-
-- [PHASE_2_COMPLETE.md](PHASE_2_COMPLETE.md) — Phase 2 implementation details
-- [REQUIREMENTS.md](REQUIREMENTS.md) — Dependencies & installation guide
-- [IMPLEMENTATION.md](trash/IMPLEMENTATION.md) — Full design spec for all 7 phases
-
-## 🎓 What You'll Learn
-
-- AWS infrastructure provisioning with Python (boto3)
-- Auto Scaling, Load Balancing, VPC design
-- FastAPI + async Python web frameworks
-- ML model serving & inference optimization
-- Time series forecasting for predictive scaling
-- Infrastructure-as-Code best practices
-- End-to-end MLOps pipeline design
-
-## 🛣️ Roadmap
-
-- [ ] Phase 3: RDS + ElastiCache (database tier)
-- [ ] Phase 4: ML model serving on EC2
-- [ ] Phase 5: WAF and security hardening
-- [ ] Phase 6: Predictive auto-scaling with Prophet
-- [ ] Phase 7: Complete MLOps loop (training → registry → drift)
-- [ ] Add Kubernetes variant (ECS/EKS)
-- [ ] Add monitoring dashboards
-- [ ] Multi-region deployment
-
-## 💡 Why This Approach?
-
-Instead of a single monolithic deployment, this project demonstrates how to build infrastructure incrementally. You can:
-- Deploy Phase 1 and stop there if you need just networking
-- Add Phase 2 to get a web tier without rewriting Phase 1
-- Swap in ML models in Phase 4 without touching earlier phases
-- Extend with MLOps in Phase 7
-
-This modularity is what real production systems need.
-
-## 📧 Contributing
-
-This is a personal learning project, but insights and feedback welcome!
 
 ## 📄 License
 
