@@ -1,0 +1,38 @@
+# Development & Testing Dependencies
+# Install alongside base requirements:
+#   pip install -r requirements.txt
+#   pip install -r requirements-dev.txt
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Testing
+# ─────────────────────────────────────────────────────────────────────────────
+
+pytest==7.4.3                      # Testing framework
+pytest-cov==4.1.0                  # Coverage plugin for pytest
+pytest-asyncio==0.21.1             # AsyncIO support for pytest
+pytest-mock==3.12.0                # Mocking support for pytest
+httpx==0.25.1                      # Async HTTP client (for FastAPI TestClient)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Code Quality & Formatting
+# ─────────────────────────────────────────────────────────────────────────────
+
+black==23.11.0                     # Code formatter
+isort==5.12.0                      # Import sorter
+flake8==6.1.0                      # Linter
+mypy==1.7.0                        # Static type checker
+pylint==3.0.3                      # Code analyzer
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Documentation
+# ─────────────────────────────────────────────────────────────────────────────
+
+sphinx==7.2.6                      # Documentation generator
+sphinx-rtd-theme==2.0.0            # Read the Docs theme for Sphinx
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Development Tools
+# ─────────────────────────────────────────────────────────────────────────────
+
+ipython==8.17.2                    # Interactive Python shell
+ipdb==0.13.13                      # IPython debugger

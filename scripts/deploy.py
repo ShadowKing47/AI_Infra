@@ -83,9 +83,45 @@ def _run_phase_1(state: dict) -> dict:
 
 
 def _run_phase_2(state: dict) -> dict:
-    # Implemented in Phase 2:
-    #   from infra import storage, compute, loadbalancer
-    log.info("=== Phase 2: Load Balancer + Web App Tier  [not yet implemented] ===")
+    from infra import storage, compute, loadbalancer
+    
+    log.info("=== Phase 2: Load Balancer + Web App Tier ===")
+    
+    # Storage layer
+    storage_state = storage.provision_storage()
+    state.update(storage_state)
+    
+    # Load balancer and target groups
+    lb_state = loadbalancer.provision_loadbalancer(
+        vpc_id=state["vpc_id"],
+        subnet_ids=state["public_subnet_ids"],
+        sg_id=state["sg_ids"]["alb"],
+        logs_bucket=state["logs_bucket"],
+    )
+    state.update(lb_state)
+    state["web_tg_arn"] = lb_state["web_tg_arn"]
+    state["listener_arn"] = lb_state["listener_arn"]
+    
+    # Get ALB DNS name for easier reference
+    elbv2 = aws.get_client("elbv2")
+    alb_info = elbv2.describe_load_balancers(LoadBalancerArns=[lb_state["alb_arn"]])
+    state["alb_dns"] = alb_info["LoadBalancers"][0]["DNSName"]
+    
+    # Web tier compute
+    web_compute = compute.provision_compute(
+        tier_name="web",
+        instance_type="t3.micro",
+        ami_id="ami-12c6146b",
+        subnet_ids=state["private_subnet_ids"],
+        target_group_arns=[lb_state["web_tg_arn"]],
+        sg_ids=[state["sg_ids"]["app"]],
+        min_size=1,
+        max_size=3,
+        desired=1,
+    )
+    state["web_launch_template_id"] = web_compute["launch_template_id"]
+    state["web_asg_name"] = web_compute["asg_name"]
+    
     return state
 
 
