@@ -126,7 +126,36 @@ def _run_phase_2(state: dict) -> dict:
 
 
 def _run_phase_3(state: dict) -> dict:
-    log.info("=== Phase 3: Data Tier (RDS + ElastiCache)  [not yet implemented] ===")
+    from infra import database, cache
+    
+    log.info("=== Phase 3: Data Tier (RDS + ElastiCache) ===")
+    
+    # Database tier (RDS Postgres Multi-AZ)
+    db_state = database.provision_database(
+        vpc_id=state["vpc_id"],
+        database_subnet_ids=state["database_subnet_ids"],
+        database_sg_id=state["sg_ids"]["db"],
+    )
+    state.update({
+        "rds_endpoint": db_state["endpoint"],
+        "rds_port": db_state["port"],
+        "rds_secret_arn": db_state["secret_arn"],
+        "rds_instance_id": db_state["instance_id"],
+    })
+    
+    # Cache tier (ElastiCache Redis Multi-AZ)
+    cache_state = cache.provision_cache(
+        cache_subnet_ids=state["database_subnet_ids"],  # Use same subnets as RDS
+        cache_sg_id=state["sg_ids"]["cache"],
+    )
+    state.update({
+        "redis_primary_endpoint": cache_state["primary_endpoint"],
+        "redis_reader_endpoint": cache_state["reader_endpoint"],
+        "redis_port": cache_state["port"],
+        "redis_auth_token_secret_arn": cache_state["auth_token_secret_arn"],
+        "redis_replication_group_id": cache_state["replication_group_id"],
+    })
+    
     return state
 
 
