@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app import health
+from app import predict
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +27,17 @@ async def lifespan(app: FastAPI):
     """
     # Startup: initialize here in Phase 4+
     log.info("FastAPI application started")
-    health.set_model_version("none")  # Phase 4 updates this after loading models
+    health.set_model_version("loading")
+    
+    # Initialize ML models
+    try:
+        await predict.initialize_models()
+        health.set_model_version("loaded")
+        log.info("ML models initialized successfully")
+    except Exception as e:
+        log.error(f"Failed to initialize ML models: {e}")
+        health.set_model_version("failed")
+        # Don't raise - let health endpoints handle 503
     
     yield
     
@@ -43,10 +54,7 @@ app = FastAPI(
 
 # Register routers
 app.include_router(health.router)
-
-# Phase 4 will add:
-# from app import predict
-# app.include_router(predict.router, prefix="/api/predict")
+app.include_router(predict.router, prefix="/api/predict")
 
 
 @app.get("/")

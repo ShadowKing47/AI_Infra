@@ -1,6 +1,6 @@
 """Health check endpoint for ALB monitoring."""
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 
 router = APIRouter(tags=["health"])
 
@@ -14,6 +14,11 @@ def set_model_version(version: str) -> None:
     _MODEL_VERSION = version
 
 
+def is_model_loaded() -> bool:
+    """Check if models are loaded (not 'loading', 'failed', or 'none')."""
+    return _MODEL_VERSION not in ("none", "loading", "failed")
+
+
 @router.get("/health")
 async def health() -> dict:
     """
@@ -23,6 +28,12 @@ async def health() -> dict:
     In Phase 4, this will return 503 until the model is loaded,
     preventing the ALB from marking the instance healthy.
     """
+    if not is_model_loaded():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Models not ready: {_MODEL_VERSION}",
+        )
+    
     return {
         "status": "ok",
         "version": _MODEL_VERSION,
