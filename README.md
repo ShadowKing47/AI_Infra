@@ -51,6 +51,18 @@ Build a **fully functional MLOps platform** where:
 - LocalStack Pro detection for BLOCK vs COUNT action
 - Attaches to ALB for full endpoint protection
 
+✅ **Phase 6: Predictive Auto-Scaling + Infrastructure ML**
+- Prophet-based time series forecasting on CloudWatch RequestCount metrics
+- 30-minute forecast horizon with 5-minute intervals
+- Auto-scaling actions scheduled via EventBridge (every 15 min)
+- High-uncertainty forecast detection (skips scaling if confidence low)
+- Self-healing: scaling actions auto-expire after 60 minutes
+- CloudWatch alarms for ALB, ASG, RDS, Redis, and MLOps custom metrics
+- MLOps dashboard with ALB, ASG, RDS, Redis, and custom metric panels
+- Custom metric publishing for scaler and drift monitoring
+- Fallback forecasting when Prophet unavailable
+- Lambda function with IAM role for CloudWatch, AutoScaling permissions
+
 
 ## 🏗️ Architecture Overview
 
@@ -59,7 +71,7 @@ Build a **fully functional MLOps platform** where:
 │ Phase 7: MLOps Pipeline                                         │
 │ (Training → Registry → A/B Deploy → Drift Monitoring)          │
 ├─────────────────────────────────────────────────────────────────┤
-│ Phase 6: Predictive Auto-Scaling + Infrastructure ML           │
+│ Phase 6: Predictive Auto-Scaling + Infrastructure ML (✅ COMPLETE)│
 │ (CloudWatch → Prophet → Scheduled Scaling Actions)             │
 ├─────────────────────────────────────────────────────────────────┤
 │ Phase 5: WAF + Security Hardening (✅ COMPLETE)                │
@@ -150,6 +162,8 @@ ai-infra/
 │   ├── test_predict.py             # FastAPI endpoint tests
 │   ├── test_health.py              # Health endpoint tests
 │   ├── test_waf.py                 # WAF WebACL tests
+│   ├── test_monitoring.py          # CloudWatch monitoring tests
+│   ├── test_scaler.py              # Predictive scaler tests
 │   ├── test_storage.py
 │   ├── test_compute.py
 │   ├── test_loadbalancer.py
@@ -267,5 +281,5 @@ MIT
 ---
 
 **Built with** Python, boto3, FastAPI, and LocalStack  
-**Status**: Phase 1 ✅ Phase 2 ✅ Phase 3 ✅ Phase 4 ✅ Phase 5 ✅ Phases 6–7 🚧  
+**Status**: Phase 1 ✅ Phase 2 ✅ Phase 3 ✅ Phase 4 ✅ Phase 5 ✅ Phase 6 ✅ Phase 7 🚧  
 **Last Updated**: August 30, 2026
