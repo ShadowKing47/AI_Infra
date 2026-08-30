@@ -16,7 +16,12 @@ def set_model_version(version: str) -> None:
 
 def is_model_loaded() -> bool:
     """Check if models are loaded (not 'loading', 'failed', or 'none')."""
-    return _MODEL_VERSION not in ("none", "loading", "failed")
+    # Also check loader's state for tests
+    try:
+        from app.models.loader import are_models_loaded
+        return _MODEL_VERSION not in ("none", "loading", "failed") and are_models_loaded()
+    except ImportError:
+        return _MODEL_VERSION not in ("none", "loading", "failed")
 
 
 @router.get("/health")
