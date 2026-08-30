@@ -276,7 +276,24 @@ def _upload_stub_model_artefacts(state: dict) -> None:
 
 
 def _run_phase_5(state: dict) -> dict:
-    log.info("=== Phase 5: WAF + Security Hardening  [not yet implemented] ===")
+    from infra import waf
+    
+    log.info("=== Phase 5: WAF + Security Hardening ===")
+    
+    # Provision WAF with ALB association and logging
+    waf_state = waf.provision_waf(
+        alb_arn=state["alb_arn"],
+        waf_logs_bucket=state["logs_bucket"],
+    )
+    state.update(waf_state)
+    
+    # Add IP whitelist for internal CIDRs (VPC CIDR)
+    waf.add_ip_whitelist(
+        web_acl_arn=waf_state["web_acl_arn"],
+        cidrs=[config.VPC_CIDR],
+    )
+    state["waf_whitelist_cidrs"] = [config.VPC_CIDR]
+    
     return state
 
 

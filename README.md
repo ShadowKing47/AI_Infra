@@ -42,6 +42,15 @@ Build a **fully functional MLOps platform** where:
 - Health endpoint returns 503 until models loaded (ALB integration)
 - Reuses `provision_compute()` from Phase 2 (zero new infra code)
 
+✅ **Phase 5: WAF + Security Hardening**
+- WAF WebACL with AWS Managed Rules (Common, SQLi, Known Bad Inputs, Anonymous IP)
+- Rate limiting: 1000 req/5min per IP on `/api/predict/*` endpoints
+- IP whitelisting for internal CIDRs (VPC CIDR)
+- WAF logging via Kinesis Firehose → S3 (`waf-logs/` prefix)
+- Managed rules start in COUNT mode (review before BLOCK)
+- LocalStack Pro detection for BLOCK vs COUNT action
+- Attaches to ALB for full endpoint protection
+
 
 ## 🏗️ Architecture Overview
 
@@ -53,7 +62,7 @@ Build a **fully functional MLOps platform** where:
 │ Phase 6: Predictive Auto-Scaling + Infrastructure ML           │
 │ (CloudWatch → Prophet → Scheduled Scaling Actions)             │
 ├─────────────────────────────────────────────────────────────────┤
-│ Phase 5: WAF + Security Hardening                              │
+│ Phase 5: WAF + Security Hardening (✅ COMPLETE)                │
 │ (Web Application Firewall, rate limiting, IP whitelisting)     │
 ├─────────────────────────────────────────────────────────────────┤
 │ Phase 4: ML Inference Tier (✅ COMPLETE)                       │
@@ -140,6 +149,7 @@ ai-infra/
 │   ├── test_anomaly.py             # Anomaly model tests
 │   ├── test_predict.py             # FastAPI endpoint tests
 │   ├── test_health.py              # Health endpoint tests
+│   ├── test_waf.py                 # WAF WebACL tests
 │   ├── test_storage.py
 │   ├── test_compute.py
 │   ├── test_loadbalancer.py
@@ -257,5 +267,5 @@ MIT
 ---
 
 **Built with** Python, boto3, FastAPI, and LocalStack  
-**Status**: Phase 1 ✅ Phase 2 ✅ Phase 3 ✅ Phase 4 ✅ Phases 5–7 🚧  
+**Status**: Phase 1 ✅ Phase 2 ✅ Phase 3 ✅ Phase 4 ✅ Phase 5 ✅ Phases 6–7 🚧  
 **Last Updated**: August 30, 2026
