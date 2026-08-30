@@ -12,9 +12,36 @@ terraform.tfvars
 .DS_Store
 *.swp
 
-tests/
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Virtual environments
 venv/
+.env
+.env.local
+
+# Test artifacts
+tests/
+.coverage
+.pytest_cache/
+.mypy_cache/
+.tox/
+
+# Distribution
+dist/
+build/
+*.egg-info/
+
+# LocalStack / state
 trash/
+state/
+
+# Documentation
 IMPLEMENTATION.md
 PHASE_2_COMPLETE.md
 REQUIREMENTS.md

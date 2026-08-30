@@ -160,8 +160,119 @@ def _run_phase_3(state: dict) -> dict:
 
 
 def _run_phase_4(state: dict) -> dict:
-    log.info("=== Phase 4: ML Inference Tier  [not yet implemented] ===")
+    from infra import compute, loadbalancer
+    
+    log.info("=== Phase 4: ML Inference Tier ===")
+    
+    # Create ML target group
+    ml_tg_arn = loadbalancer.create_target_group(
+        name="ml",
+        vpc_id=state["vpc_id"],
+        port=8080,
+        health_check_path="/api/predict/health",
+    )
+    state["ml_tg_arn"] = ml_tg_arn
+    
+    # Add listener rule to route /api/predict/* to ML target group
+    rule_arn = loadbalancer.add_listener_rule(
+        listener_arn=state["listener_arn"],
+        tg_arn=ml_tg_arn,
+        path_patterns=["/api/predict/*"],
+        priority=10,
+    )
+    state["ml_rule_arn"] = rule_arn
+    
+    # ML tier compute (reuses provision_compute from Phase 2)
+    ml_compute = compute.provision_compute(
+        tier_name="ml",
+        instance_type="c5.xlarge",
+        ami_id="ami-12c6146b",
+        subnet_ids=state["private_subnet_ids"],
+        target_group_arns=[ml_tg_arn],
+        sg_ids=[state["sg_ids"]["ml"]],
+        min_size=1,
+        max_size=4,
+        desired=1,
+        enable_warm_pool=True,
+    )
+    state["ml_launch_template_id"] = ml_compute["launch_template_id"]
+    state["ml_asg_name"] = ml_compute["asg_name"]
+    
+    # Upload stub model artefacts for local testing
+    _upload_stub_model_artefacts(state)
+    
     return state
+
+
+def _upload_stub_model_artefacts(state: dict) -> None:
+    """Upload stub model artefacts to S3 for local testing."""
+    import json
+    from infra import client as aws
+    
+    s3 = aws.get_client("s3")
+    bucket = state.get("artefacts_bucket")
+    if not bucket:
+        log.warning("No artefacts bucket in state, skipping model upload")
+        return
+    
+    # Sentiment model stub
+    sentiment_metadata = {
+        "version": "v1.0",
+        "type": "huggingface",
+        "model_id": "distilbert-base-uncased-finetuned-sst-2-english",
+    }
+    try:
+        s3.put_object(
+            Bucket=bucket,
+            Key="sentiment/stable/metadata.json",
+            Body=json.dumps(sentiment_metadata),
+            ContentType="application/json",
+        )
+        # Create a minimal joblib stub (actual HF model downloads on first use)
+        import joblib
+        import io
+        stub_model = {"type": "huggingface_stub", "version": "v1.0"}
+        buf = io.BytesIO()
+        joblib.dump(stub_model, buf)
+        s3.put_object(
+            Bucket=bucket,
+            Key="sentiment/stable/model.joblib",
+            Body=buf.getvalue(),
+        )
+        log.info("Uploaded sentiment model stub")
+    except Exception as e:
+        log.warning(f"Failed to upload sentiment stub: {e}")
+    
+    # Anomaly model stub
+    anomaly_metadata = {
+        "version": "v1.0",
+        "type": "joblib",
+    }
+    try:
+        s3.put_object(
+            Bucket=bucket,
+            Key="anomaly/stable/metadata.json",
+            Body=json.dumps(anomaly_metadata),
+            ContentType="application/json",
+        )
+        import joblib
+        import io
+        import numpy as np
+        from sklearn.ensemble import IsolationForest
+        # Train a tiny IsolationForest on dummy data for testing
+        dummy_data = np.random.randn(100, 10)
+        model = IsolationForest(contamination=0.1, random_state=42)
+        model.fit(dummy_data)
+        buf = io.BytesIO()
+        joblib.dump(model, buf)
+        s3.put_object(
+            Bucket=bucket,
+            Key="anomaly/stable/model.joblib",
+            Body=buf.getvalue(),
+        )
+        log.info("Uploaded anomaly model stub")
+    except Exception as e:
+        log.warning(f"Failed to upload anomaly stub: {e}")
 
 
 def _run_phase_5(state: dict) -> dict:
