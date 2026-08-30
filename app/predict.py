@@ -57,7 +57,7 @@ class AnomalyBatchRequest(BaseModel):
 class AnomalyResponse(BaseModel):
     """Anomaly detection response."""
     is_anomaly: bool = Field(..., description="Whether the input is anomalous")
-    anomaly_score: float = Field(..., ge=0.0, description="Anomaly score (higher = more anomalous)")
+    anomaly_score: float = Field(..., description="Anomaly score (lower = more anomalous)")
     model_version: str = Field(..., description="Model version identifier")
 
 

@@ -26,6 +26,22 @@ Build a **fully functional MLOps platform** where:
 - EC2 launch templates with IMDSv2, CloudWatch monitoring, IAM roles
 - FastAPI application with `/health` endpoint
 
+✅ **Phase 3: Data Tier (RDS + ElastiCache)**
+- RDS Postgres Multi-AZ with encryption, automated backups, deletion protection
+- ElastiCache Redis Multi-AZ replication group with at-rest/in-transit encryption
+- Credentials stored in AWS Secrets Manager
+- Feature store client with online (Redis) / offline (RDS) paths
+
+✅ **Phase 4: ML Inference Tier**
+- HuggingFace sentiment classifier (distilbert-base-uncased) via transformers
+- Isolation Forest anomaly detector via scikit-learn
+- Model artefacts loaded from S3 on startup with in-memory caching
+- FastAPI endpoints: `/api/predict/sentiment`, `/api/predict/anomaly` (+ batch)
+- ALB path-based routing: `/api/predict/*` → ML target group
+- ML ASG with warm pool for zero-cold-start inference
+- Health endpoint returns 503 until models loaded (ALB integration)
+- Reuses `provision_compute()` from Phase 2 (zero new infra code)
+
 
 ## 🏗️ Architecture Overview
 
@@ -40,10 +56,10 @@ Build a **fully functional MLOps platform** where:
 │ Phase 5: WAF + Security Hardening                              │
 │ (Web Application Firewall, rate limiting, IP whitelisting)     │
 ├─────────────────────────────────────────────────────────────────┤
-│ Phase 4: ML Inference Tier                                      │
+│ Phase 4: ML Inference Tier (✅ COMPLETE)                       │
 │ (Model serving on EC2, path-based routing to /api/predict/*)   │
 ├─────────────────────────────────────────────────────────────────┤
-│ Phase 3: Data Tier                                              │
+│ Phase 3: Data Tier (✅ COMPLETE)                                │
 │ (RDS Postgres Multi-AZ, ElastiCache Redis, Secrets Manager)    │
 ├─────────────────────────────────────────────────────────────────┤
 │ Phase 2: Load Balancer + Web App (✅ COMPLETE)                 │
@@ -102,6 +118,10 @@ ai-infra/
 │   ├── predict.py                  # /api/predict/* endpoints
 │   ├── features.py                 # Feature store client
 │   └── models/                     # Model loading & inference
+│       ├── __init__.py
+│       ├── loader.py               # S3 artefact loading + caching
+│       ├── sentiment.py            # HuggingFace sentiment classifier
+│       └── anomaly.py              # Isolation Forest anomaly detector
 │
 ├── mlops/                          # ML pipeline scripts
 │   ├── train.py                    # Training + MLflow logging
@@ -114,6 +134,12 @@ ai-infra/
 │   └── bootstrap_state.py          # Initialize S3 state bucket
 │
 ├── tests/
+│   ├── conftest.py                 # Shared fixtures
+│   ├── test_loader.py              # Model loader tests
+│   ├── test_sentiment.py           # Sentiment model tests
+│   ├── test_anomaly.py             # Anomaly model tests
+│   ├── test_predict.py             # FastAPI endpoint tests
+│   ├── test_health.py              # Health endpoint tests
 │   ├── test_storage.py
 │   ├── test_compute.py
 │   ├── test_loadbalancer.py
@@ -231,5 +257,5 @@ MIT
 ---
 
 **Built with** Python, boto3, FastAPI, and LocalStack  
-**Status**: Phase 1 ✅ Phase 2 ✅ Phases 3–7 🚧  
-**Last Updated**: May 31, 2026
+**Status**: Phase 1 ✅ Phase 2 ✅ Phase 3 ✅ Phase 4 ✅ Phases 5–7 🚧  
+**Last Updated**: August 30, 2026
